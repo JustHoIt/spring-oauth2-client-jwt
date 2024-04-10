@@ -1,0 +1,23 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/security_db?serverTimezone=Asia/Seoul
+    username: ${db.username}
+    password: ${db.password}
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+
+  oauth2Info:
+    naver:
+      id: ${naver.client-id}
+      secret: ${naver.client-secret}
+    google:
+      id: ${google.client-id}
+      secret: ${google.client-secret}
+
+jwt:
+  secret: ${jwt.token}
