@@ -1,6 +1,9 @@
 package com.example.springoauth2clientjwt.service;
 
 import com.example.springoauth2clientjwt.dto.*;
+import com.example.springoauth2clientjwt.entity.UserEntity;
+import com.example.springoauth2clientjwt.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -9,8 +12,11 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 @Slf4j
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
+
+    private final UserRepository userRepository;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -30,13 +36,37 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         }
 
         String username = oAuth2Response.getProvider() + " " + oAuth2Response.getProviderID();
+        UserEntity existUser = userRepository.findByUsername(username);
 
-        UserDTO userDTO = new UserDTO();
-        userDTO.setName(username);
-        userDTO.setUsername(oAuth2Response.getName());
-        userDTO.setRole("ROLE_USER");
-        userDTO.setOauth2name(registrationId);
+        if (existUser == null) {
 
-        return new CustomOAuth2User(userDTO);
+            UserEntity userEntity = new UserEntity();
+            userEntity.setUsername(username);
+            userEntity.setEmail(oAuth2Response.getEmail());
+            userEntity.setName(oAuth2Response.getName());
+            userEntity.setRole("ROLE_USER");
+            userEntity.setOauth2name(registrationId);
+
+            UserDTO userDTO = new UserDTO();
+            userDTO.setName(username);
+            userDTO.setUsername(oAuth2Response.getName());
+            userDTO.setRole("ROLE_USER");
+            userDTO.setOauth2name(registrationId);
+
+            return new CustomOAuth2User(userDTO);
+        }else{
+            existUser.setEmail(oAuth2Response.getEmail());
+            existUser.setName(oAuth2Response.getName());
+
+            userRepository.save(existUser);
+
+            UserDTO userDTO = new UserDTO();
+            userDTO.setName(username);
+            userDTO.setUsername(oAuth2Response.getName());
+            userDTO.setRole(existUser.getRole());
+            userDTO.setOauth2name(registrationId);
+
+            return new CustomOAuth2User(userDTO);
+        }
     }
 }
