@@ -9,7 +9,7 @@ public class MainController {
 
     @GetMapping("/")
     @ResponseBody
-    public String mainAPI(){
+    public String mainAPI() {
 
 
         return "main route";

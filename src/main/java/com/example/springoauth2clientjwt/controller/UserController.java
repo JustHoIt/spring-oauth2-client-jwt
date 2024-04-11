@@ -10,7 +10,7 @@ public class UserController {
 
     @GetMapping("/user")
     @ResponseBody
-    public String userAPI(){
+    public String userAPI() {
 
         return "user route";
     }
